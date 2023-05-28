@@ -1,0 +1,428 @@
+<?php session_start(); 
+
+if ($_SESSION['auth']) {?>
+    <div class="nav"> 
+    <!--При авторизации отображаем приветствие и кнопку для выхода-->
+    <p class="welcome">Здравствуйте, <?=$_SESSION['user_name']?></p>
+    <a href="/auth/logout"><button class="open-button btn btn-secondary" type="button">Выйти</button></a>         
+</div>
+
+
+<?php
+
+
+if ($_SESSION['user_role'] == 'advertiser') { ?>
+   <div class="form-login mb-2 ml-3 border border-1 border-secondary ">
+    <form method="POST" name = "create_offer_form">
+    <div class="form-group">
+        <input name="offer_name" class="form-control" type="text" placeholder="Название оффера" required>
+    </div>
+    <div class="form-group">
+        <input name="offer_price" class="form-control" type="number" step="0.01" placeholder="Цена за переход" required>
+    </div>
+    <div class="form-group">
+        <input name="offer_url" class="form-control" type="text" placeholder="Ссылка" required>
+    </div>
+	<div class="form-group">
+        <input name="offer_theme" class="form-control" type="text" placeholder="Тематика сайта" required>
+    </div>
+    <input type="hidden" id="user_id" name="user_id" value="<?= $_SESSION['user_id']?>">
+    <div class="form-group">
+   
+    <input name="offer_status" type="checkbox" checked> Сразу активировать
+
+</div>
+    <hr>
+      
+    <input name="create_offer" class ="btn btn-primary" type="submit" value="Создать оффер">
+ 
+      </form> 
+         
+    </div>
+<?php }
+ }
+
+$paid_rate = 1;
+
+ if (empty($_SESSION['auth'])) {
+    $offer_object = new Offer;
+    $offer_data = $offer_object->get_all_offer_data();
+ }
+ 
+ if (!empty($_SESSION['auth'])) {
+    $current_id = $_SESSION['user_id'];
+    $current_role = $_SESSION['user_role'];          
+
+
+ if (($_SESSION['user_role'] == 'advertiser') || ($_SESSION['user_role'] == 'admin')) {
+    $offer_object = new Offer;
+    $offer_data = $offer_object->get_all_offer_data();
+ }
+
+ if ($_SESSION['user_role'] == 'webmaster') {
+    $sub_object = new Subscription;
+    $offer_data = $sub_object->get_offer_data_for_user($current_id);
+    $paid_rate = 1 - COMMISSION;
+ }
+}
+ ?>
+
+
+<div class="offer_section">
+<?php
+if ($offer_data) {
+foreach ($offer_data as $offer) 
+{
+    if ($offer['offer_status'] == 'Yes')
+        {
+    ?>
+    <div class="offer_container mt-5 ml-2 w-70">
+    <div> Название оффера: <?= $offer['offer_name'] ?></div>
+    <div> Цена перехода: <?= $offer['offer_price'] * $paid_rate; ?></div>
+    <div> Ссылка на сайт: <a href="<?= $offer['offer_url'] ?>"><?= $offer['offer_url'] ?></a></div>
+    <div> Тематика: <?= $offer['offer_theme'] ?></div></div>
+
+   <?php 
+    if (($offer['offer_creator_id'] == $_SESSION['user_id']) || ($_SESSION["user_role"] == "admin")){
+    
+        
+            $button_name = 'Деактивировать';
+            $class_name = "btn-outline-success";
+        /*else {
+            $button_name = 'Активировать';
+            $class_name = "btn-outline-info";
+        }*/
+
+        ?>
+
+    <form method="post" name="update_offer_status">
+            <input type="hidden" name="offer_updated_id" value="<?= $offer['offer_id'] ?>">
+            <button class="btn <?=$class_name ?> ml-3 mt-1 mb-1" name="update_offer_status" type="submit"><?= $button_name ?> </button>
+    </form>
+  
+<?php
+        }
+}
+
+if ($_SESSION['user_role'] == 'webmaster') {
+    if ($offer["offer_status"] == "Yes") {
+    if ($offer["sub_status"]) {
+        $button_name = 'Отписаться';
+        $class_name = "btn-outline-success";
+    ?>
+    <div class="special-link ml-2 w-70"> Ваша ссылка: <a href="<?= get_link($current_id, $offer['offer_id'])?>">
+    <?= get_link($current_id, $offer['offer_id'])?> </a></div>
+ <?php 
+    }
+    else {
+        $button_name = 'Подписаться';
+        $class_name = "btn-outline-info";
+    }
+ ?>
+ 
+        
+        <form method="post" name="sub_unsub">
+            <input type="hidden" name="offer_sub_id" value="<?= $offer['offer_id'] ?>">
+            <button class="btn <?=$class_name ?> ml-3 mt-1 mb-1" name="sub_unsub" type="submit"><?= $button_name ?> </button>
+    </form>
+ <?php
+    }
+}
+
+if ($_SESSION['user_role'] == 'admin') {
+    if ($offer["offer_status"] == "Yes") {
+   
+        $button_name = 'Удалить пользователя и деактивировать все его офферы';
+        $class_name = "btn-outline-danger";
+    
+ ?>
+ 
+        
+        <form method="post" name="delete_user">
+            <input type="hidden" name="user_delete_id" value="<?= $offer['offer_creator_id'] ?>">
+            <button class="btn <?=$class_name ?> ml-3 mt-1 mb-1" name="delete_user" type="submit"><?= $button_name ?> </button>
+    </form>
+ <?php
+    }
+}
+
+}
+}
+
+?>
+</div>
+
+
+
+
+
+
+<script>
+
+    window.onload = function(){
+		//var socket = new WebSocket('ws://echo.websocket.org');
+        
+		var socket = new WebSocket('ws://localhost:8080');
+		//var status = document.querySelector('#status');
+
+        
+        for(var i=0; i<document.forms.length; i++){
+            console.log("lala");
+            var form = document.forms[i];
+
+            if (form.getAttribute("name") == "update_offer_status") {
+                form.addEventListener("submit", formUpdateStatus,false);
+            }
+
+            if (form.getAttribute("name") == "sub_unsub") {
+                form.addEventListener("submit", formSubUnsub,false);
+            }
+
+            if (form.getAttribute("name") == "delete_user") {
+                form.addEventListener("submit", formDeleteUser,false);
+            }
+
+        }
+    
+		socket.onopen = function(event){    
+
+		
+			console.log('connected');
+/*
+           $.ajax({
+            url: '/dashboard/create_offer',
+            method: 'post',
+            dataType: 'JSON',
+            data: {
+				offername:'name'
+			},
+            success:function(data){
+              //console.log(data[1].offer_name);
+			var div = document.querySelector('.offer_section');
+			var innerDiv_1 = document.createElement('div');
+            var innerDiv_2 = document.createElement('div');
+           
+            
+            innerDiv_1.innerHTML = data[1].offer_name;
+            innerDiv_2.innerHTML = data[1].offer_price;
+            div.appendChild(innerDiv_1);
+            div.appendChild(innerDiv_2);
+            }
+        });*/
+         
+    }
+		socket.onclose = function(event){
+			if( event.wasClean ){
+				console.log('closed');
+			}else{
+				console.log('closed some');
+			}
+		};
+
+		socket.onmessage = function(event){
+            //console.log('Yes');
+           let data = JSON.parse(event.data);
+           let message = data["offer_data"];
+
+           paid_rate = 1;
+           if ('<?php echo $current_role; ?>' == "webmaster") {
+            //console.log(data["sub_data"]);
+                    paid_rate = 1 - '<?php echo COMMISSION; ?>';
+                    subscr = data["sub_data"];
+                    current_id = '<?php echo $current_id; ?>';
+                    //console.log(current_id);
+                    index = 0;
+                    user_subs = [];
+                    user_links = [];
+                    for(var count = 0; count < subscr.length; count++){
+                        if (subscr[count].user_id == current_id) {
+                            //console.log("yep");
+                            user_subs[index] = subscr[count].offer_id;
+                            user_links[index] = subscr[count].link_param;
+                            index++;
+                        }
+                    }
+            }
+
+			var div = document.querySelector('.offer_section');
+            div.innerHTML = '';
+            if (message.length > 0) {
+                for(var count = 0; count < message.length; count++){
+                    if(message[count].offer_status == "Yes") {
+                    var innerDiv_1 = document.createElement('div');
+                    var innerDiv_2 = document.createElement('div');
+                    //var innerDiv_3 = document.createElement('div');
+
+                    
+
+                    innerDiv_1.innerHTML = `<div class="offer_container mt-5 ml-2 w-70"><div> Название оффера: ` + message[count].offer_name +`</div>
+    <div> Цена перехода: ` + (message[count].offer_price * paid_rate).toFixed(2) + `</div>
+    <div> Ссылка на сайт: <a href="` + message[count].offer_url + `">` + message[count].offer_url + `</a></div>
+    <div> Тематика: ` + message[count].offer_theme + `</div></div>`;
+                    div.appendChild(innerDiv_1);
+                    //div.appendChild(innerDiv_2);
+                if (('<?php echo $current_id; ?>' == message[count].offer_creator_id) || ('<?php echo $current_role; ?>' == "admin")) {
+                if (message[count].offer_status == "Yes") 
+                    {buttonName = "Деактивировать";
+                    className = "btn-outline-success"} else 
+                    {buttonName = "Активировать";
+                    className = "btn-outline-info";};
+                    innerDiv_2.innerHTML = `<form method="post" name="update_offer_status">
+                        <input type="hidden" name="offer_updated_id" value="` + message[count].offer_id + `">
+                        <button class="btn `+ className +` ml-3 mt-1 mb-1" name="update_offer_status" type="submit">` + buttonName + `</button>
+                    </form>`;
+                  
+                    div.appendChild(innerDiv_2);
+                  
+                }
+
+                if ('<?php echo $current_role; ?>' == "webmaster") {
+                    
+                    if (user_subs.includes(message[count].offer_id)) 
+                    {
+                        innerDiv_2.innerHTML = `<form method="post" name="sub_unsub">
+                        <input type="hidden" name="offer_sub_id" value="` + message[count].offer_id + `">
+                        <div class="special-link ml-2 w-70">Ваша ссылка: <a href="` + user_links[user_subs.indexOf(message[count].offer_id)] +`">` + 
+                        user_links[user_subs.indexOf(message[count].offer_id)] + `</a></div> 
+                        <button class="btn btn-outline-success ml-3 mt-1 mb-1" name="sub_unsub" type="submit"> Отписаться</button> </form>`;
+                    
+                    } else {
+                    innerDiv_2.innerHTML = `<form method="post" name="sub_unsub">
+                        <input type="hidden" name="offer_sub_id" value="` + message[count].offer_id + `"> 
+                        <button class="btn btn-outline-info ml-3 mt-1 mb-1" name="sub_unsub" type="submit"> Подписаться </button> </form>`;
+                    }
+                    div.appendChild(innerDiv_2);
+                    
+                }
+
+                if ('<?php echo $current_role; ?>' == "admin") {
+                    if (message[count].offer_status == "Yes") {
+                    var innerDiv_3 = document.createElement('div');
+                   
+                        innerDiv_3.innerHTML = `<form method="post" name="delete_user">
+                        <input type="hidden" name="user_delete_id" value="` + message[count].offer_creator_id + `">
+                        <button class="btn btn-outline-danger ml-3 mt-1 mb-1" name="delete_user" type="submit"> 
+                        Удалить пользователя и деактивировать все его офферы </button> </form>`;
+                   
+                    div.appendChild(innerDiv_3);
+                    
+                }
+
+            }
+            }
+                for(var i=0; i<document.forms.length; i++){
+                    var form = document.forms[i];
+
+                    if (form.getAttribute("name") == "update_offer_status") {
+                        form.addEventListener("submit", formUpdateStatus,false);
+                    }
+
+                        if (form.getAttribute("name") == "sub_unsub") {
+                        form.addEventListener("submit", formSubUnsub,false);
+                    }
+
+                    if (form.getAttribute("name") == "delete_user") {
+                        form.addEventListener("submit", formDeleteUser,false);
+                    }
+
+
+                }
+
+                }
+            }
+		
+            //innerDiv_2.innerHTML = mess[1].offer_price;
+			//innerDiv.classList.add('leftmessage');
+            //var div = document.querySelector('#resultField');
+			//var h3 = document.createElement('h3');
+			
+			//innerDiv.appendChild(h3);
+			
+			//document.querySelector('#textInput').value = '';
+			//document.getElementById('textField').value = '';
+            
+		};
+		
+		
+		socket.onerror = function(event){
+			console.log('error ' + event.message);
+		};
+
+		
+		document.forms['create_offer_form'].onsubmit = function(){
+            
+            event.preventDefault();
+            let message = {
+				offer_name: this.offer_name.value,
+                offer_price: this.offer_price.value,
+                offer_url: this.offer_url.value,
+                offer_theme: this.offer_theme.value,
+                offer_status: this.offer_status.checked,
+                offer_creator_id: '<?php echo $current_id; ?>',
+                command: 'create_offer_form'
+			}
+
+			socket.send(JSON.stringify(message));
+
+            this.offer_name.value = '';
+            this.offer_price.value = '';
+            this.offer_url.value = '';
+            this.offer_theme.value = '';
+            this.offer_status.checked = true;
+            
+  
+			
+			//return false;
+		}
+
+   
+
+
+        //document.forms['update_offer_status'].onsubmit = function(){
+        function formUpdateStatus(){   
+            event.preventDefault();
+           
+            let message = {
+				offer_updated_id: this.offer_updated_id.value,
+                command: 'update_offer_status'
+			}
+
+			socket.send(JSON.stringify(message));
+      
+			//return false;
+		}
+
+        function formSubUnsub(){   
+            event.preventDefault();
+             console.log("yep");    
+            let message = {
+				offer_sub_id: this.offer_sub_id.value,
+                current_user_id: '<?php echo $current_id; ?>',
+                command: 'sub_unsub'
+			}
+
+			socket.send(JSON.stringify(message));
+         
+		}
+
+        function formDeleteUser(){   
+            event.preventDefault();
+             console.log("yeppp");
+             
+             let message = {
+				user_delete_id: this.user_delete_id.value,
+                command: 'delete_user'
+			}
+
+           
+
+			socket.send(JSON.stringify(message));
+         
+		}
+
+     
+			//return false;
+		}
+		//return false;
+    
+</script>

@@ -1,0 +1,580 @@
+<?php session_start(); ?>
+<h2></h2>
+
+
+<?php
+if ($_SESSION['auth']) { 
+    $current_id = $_SESSION['user_id'];
+    $current_role = $_SESSION['user_role'];  
+    ?>
+    <div class="nav"> 
+    <!--При авторизации отображаем приветствие и кнопку для выхода-->
+    <p class="welcome">Здравствуйте, <?=$_SESSION['user_name']?></p>
+    <a href="/auth/logout"><button class="open-button btn btn-secondary" type="button">Выйти</button></a>         
+</div>
+
+
+<?php
+
+
+if ($_SESSION['user_role'] == 'advertiser') { ?>
+
+
+
+
+   <div class="form-login mb-2 ml-3 border border-1 border-secondary ">
+    <form method="POST" name = "create_offer_form">
+    <div class="form-group">
+        <input name="offer_name" class="form-control" type="text" placeholder="Название оффера" required>
+    </div>
+    <div class="form-group">
+        <input name="offer_price" class="form-control" type="number" step="0.01" placeholder="Цена за переход" required>
+    </div>
+    <div class="form-group">
+        <input name="offer_url" class="form-control" type="text" placeholder="Ссылка" required>
+    </div>
+	<div class="form-group">
+        <input name="offer_theme" class="form-control" type="text" placeholder="Тематика сайта" required>
+    </div>
+    <input type="hidden" id="user_id" name="user_id" value="<?= $_SESSION['user_id']?>">
+    <div class="form-group">
+   
+    <input name="offer_status" type="checkbox" checked> Сразу активировать
+
+</div>
+    <hr>
+      
+    <input name="create_offer" class ="btn btn-primary" type="submit" value="Создать оффер">
+ 
+      </form> 
+         
+    </div>
+    <?php $click_object = new Clickthrough;
+    $sum_expenses = 0;
+    $expenses = $click_object->get_money_by_advertisers();
+
+    for ($i = 0; $i < count($expenses); $i++) {
+        if ($expenses[$i]["user_name"] == $_SESSION["user_name"]) {
+            $sum_expenses = $expenses[$i]["money"];
+        }
+    }
+    ?>
+    <h2 class="ml=2">Ваш суммарный расход: <?= $sum_expenses ?></h2>
+
+
+    <?php $offers_money = $click_object->get_money_by_offers(); 
+    $sum_offers = 0;
+    for ($i = 0; $i<count($offers_money); $i++) {
+        if ($offers_money[$i]["offer_creator_id"] == $_SESSION["user_id"]){
+        $sum_offers = $sum_offers + $offers_money[$i]["money"];
+        }
+    }
+    ?>
+    <h3>Расходы по офферам: </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Оффер</th>
+                <th>Расход</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+    foreach ($offers_money as $offer_money) {
+        if ($offer_money["offer_creator_id"] == $_SESSION["user_id"]) {
+        echo "<tr>";
+        echo "<td>" . $offer_money["offer_name"] . "</td>";
+        echo "<td>" . $offer_money["money"] . "</td>";
+        echo "</tr>";
+        }
+    }
+        ?>
+        </tbody>
+        <tfoot>
+            <tr class="font-weight-bold">
+            <td>Всего</td>
+            <td><?= $sum_offers ?></td>
+
+            </tr>
+        </tfoot>
+    </table>
+
+
+
+    <h2 class="ml=2">Ваши офферы:</h2>
+<?php 
+
+    $offer_object = new Offer;
+    $offer_data = $offer_object->get_all_offer_data();
+    
+?>
+    <div class="offer_section">
+    <?php
+    if ($offer_data) {
+    foreach ($offer_data as $offer) 
+    {
+        if ($offer['offer_creator_id'] == $_SESSION['user_id']) {
+    ?>
+            <div class="offer_container mt-5 ml-2 w-70">
+            <div> Название оффера: <?= $offer['offer_name'] ?></div>
+            <div> Цена перехода: <?= $offer['offer_price'] ?></div>
+            <div> Ссылка на сайт: <a href="<?= $offer['offer_url'] ?>"><?= $offer['offer_url'] ?></a></div>
+            <div> Тематика: <?= $offer['offer_theme'] ?></div></div>
+
+            <?php
+            if ($offer['offer_status'] == 'Yes')
+            {
+                $button_name = 'Деактивировать';
+                $class_name = "btn-outline-success";}
+            else {
+                $button_name = 'Активировать';
+                $class_name = "btn-outline-info";
+            }
+        ?>
+           <form method="post" name="update_offer_status">
+            <input type="hidden" name="offer_updated_id" value="<?= $offer['offer_id'] ?>">
+            <button class="btn <?=$class_name ?> ml-3 mt-1 mb-1" name="update_offer_status" type="submit"><?= $button_name ?> </button>
+    </form>
+      
+    <?php
+        }
+  
+    }
+    ?>
+    
+    </div>
+    <?php
+    }
+}
+
+
+
+ ?>
+
+
+<?php
+
+  
+
+if ($_SESSION['user_role'] == 'webmaster') {
+    $paid_rate = 1 - COMMISSION;
+    $sub_object = new Subscription;
+    $offer_data = $sub_object->get_offer_data_for_user($current_id);
+?>
+    <h2 class="ml=2">Ваш суммарный доход:</h2>
+    <h2>Ваши подписки:</h2>
+
+    <div class="offer_section">
+    <?php
+    if ($offer_data) {
+        foreach ($offer_data as $offer) 
+        {
+            if ($offer["sub_status"]) {
+            ?>
+            <div class="offer_container mt-5 ml-2 w-70">
+            <div> Название оффера: <?= $offer['offer_name'] ?></div>
+            <div> Цена перехода: <?= round($offer['offer_price'] * $paid_rate, 2); ?></div>
+            <div> Ссылка на сайт: <a href="<?= $offer['offer_url'] ?>"><?= $offer['offer_url'] ?></a></div>
+            
+            <div> Тематика: <?= $offer['offer_theme'] ?></div></div>
+        
+           <?php 
+
+    
+        $button_name = 'Отписаться';
+        $class_name = "btn-outline-success";
+   
+            if ($offer["offer_status"] == "Yes") {
+                ?>
+              <div class="special-link ml-2 w-70"> Ваша ссылка: <a href="<?= get_link($current_id, $offer['offer_id'])?>">
+    <?= get_link($current_id, $offer['offer_id'])?> </a></div>
+                <?
+            } else {
+            ?>
+            <div class="special-link ml-2 w-70"> Ссылка на сайт неактивна! </div>
+            <?php
+            }?>
+  
+ <?php 
+    ?>
+  <form method="post" name="sub_unsub">
+            <input type="hidden" name="offer_sub_id" value="<?= $offer['offer_id'] ?>">
+            <button class="btn <?=$class_name ?> ml-3 mt-1 mb-1" name="sub_unsub" type="submit"><?= $button_name ?> </button>
+    </form>
+    <?php
+}
+
+
+}
+}
+?>
+</div>
+<?php
+}
+
+if ($_SESSION['user_role'] == 'admin') {
+    $click_object = new Clickthrough;
+    
+?>
+    <h2 class="ml=2">Суммарный доход системы: <?= $click_object->get_all_money()[0]["total"] * COMMISSION; ?></h2>
+    <?php $expenses = $click_object->get_money_by_advertisers(); 
+    
+    $sum_expenses = 0;
+    for ($i = 0; $i< count($expenses); $i++) {
+        $sum_expenses = $sum_expenses + $expenses[$i]["money"];
+    }
+    ?>
+    <h3>Расходы рекламодателей: </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Рекламодатель</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+    foreach ($expenses as $expense) {
+        echo "<tr>";
+        echo "<td>" . ($expense["user_name"] ? $expense["user_name"]: "Удаленные пользователи") . "</td>";
+        echo "<td>" . $expense["money"] . "</td>";
+        echo "</tr>";
+    }
+        ?>
+        </tbody>
+        <tfoot>
+            <tr class="font-weight-bold">
+            <td>Всего</td>
+            <td><?= $sum_expenses ?></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <?php $profits = $click_object->get_money_by_webmasters(); 
+    $sum_profits = 0;
+    for ($i = 0; $i< count($profits); $i++) {
+        $sum_profits = $sum_profits + $profits[$i]["money"]* (1- COMMISSION);
+    }
+    
+    ?>
+    <h3>Доходы вебмастеров: </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Вебмастер</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+    foreach ($profits as $profit) {
+        echo "<tr>";
+        echo "<td>" . ($profit["user_name"] ? $profit["user_name"]: "Удаленные пользователи") . "</td>";
+        echo "<td>" . $profit["money"] * (1 - COMMISSION) . "</td>";
+        echo "</tr>";
+    }
+        ?>
+        </tbody>
+        <tfoot>
+            <tr class="font-weight-bold">
+            <td>Всего</td>
+            <td><?= $sum_profits ?></td>
+            </tr>
+        </tfoot>
+    </table>
+
+
+    <?php $offers_money = $click_object->get_money_by_offers(); 
+    $sum_offers = 0;
+    for ($i = 0; $i< count($offers_money); $i++) {
+        $sum_offers = $sum_offers + $offers_money[$i]["money"];
+    }
+    ?>
+    <h3>Доходы по офферам: </h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Оффер</th>
+                <th>Расход рекламодателя</th>
+                <th>Доход вебмастер</th>
+                <th>Доход системы</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+    foreach ($offers_money as $offer_money) {
+        echo "<tr>";
+        echo "<td>" . $offer_money["offer_name"] . "</td>";
+        echo "<td>" . $offer_money["money"] . "</td>";
+        echo "<td>" . $offer_money["money"] * (1 - COMMISSION) . "</td>";
+        echo "<td>" . $offer_money["money"] * COMMISSION . "</td>";
+        echo "</tr>";
+    }
+        ?>
+        </tbody>
+        <tfoot>
+            <tr class="font-weight-bold">
+            <td>Всего</td>
+            <td><?= $sum_offers ?></td>
+            <td><?= $sum_offers * (1 - COMMISSION) ?></td>
+            <td><?= $sum_offers * COMMISSION ?></td>
+            </tr>
+        </tfoot>
+    </table>
+
+<?php
+}
+}
+?>
+
+
+<script>
+
+    window.onload = function(){
+		//var socket = new WebSocket('ws://echo.websocket.org');
+        
+		var socket = new WebSocket('ws://localhost:8080');
+		var status = document.querySelector('#status');
+
+        //console.log(document.forms.length);
+        for(var i=0; i<document.forms.length; i++){
+            console.log("lala");
+            var form = document.forms[i];
+
+            if (form.getAttribute("name") == "update_offer_status") {
+                form.addEventListener("submit", formUpdateStatus,false);
+            }
+
+            if (form.getAttribute("name") == "sub_unsub") {
+                form.addEventListener("submit", formSubUnsub,false);
+            }
+
+        }
+    
+		socket.onopen = function(event){    
+
+		
+			status.innerHTML = 'connected';
+/*
+           $.ajax({
+            url: '/dashboard/create_offer',
+            method: 'post',
+            dataType: 'JSON',
+            data: {
+				offername:'name'
+			},
+            success:function(data){
+              //console.log(data[1].offer_name);
+			var div = document.querySelector('.offer_section');
+			var innerDiv_1 = document.createElement('div');
+            var innerDiv_2 = document.createElement('div');
+           
+            
+            innerDiv_1.innerHTML = data[1].offer_name;
+            innerDiv_2.innerHTML = data[1].offer_price;
+            div.appendChild(innerDiv_1);
+            div.appendChild(innerDiv_2);
+            }
+        });*/
+         
+    }
+		socket.onclose = function(event){
+			if( event.wasClean ){
+				status.innerHTML = 'closed';
+			}else{
+				status.innerHTML = 'closed some';
+			}
+		};
+
+		socket.onmessage = function(event){
+           
+           let data = JSON.parse(event.data);
+           let message = data["offer_data"];
+
+           if ('<?php echo $current_role; ?>' == "webmaster") {
+            //console.log(data["sub_data"]);
+           
+                    subscr = data["sub_data"];
+                    current_id = '<?php echo $current_id; ?>';
+                    //console.log(current_id);
+                    index = 0;
+                    user_subs = [];
+                    user_links = [];
+                    for(var count = 0; count < subscr.length; count++){
+                        if (subscr[count].user_id == current_id) {
+                            //console.log("yep");
+                            user_subs[index] = subscr[count].offer_id;
+                            user_links[index] = subscr[count].link_param;
+                            index++;
+                        }
+                    }
+            }
+
+			var div = document.querySelector('.offer_section');
+            div.innerHTML = '';
+            if (message.length > 0) {
+                for(var count = 0; count < message.length; count++){
+                    var innerDiv_1 = document.createElement('div');
+                    var innerDiv_2 = document.createElement('div');
+                    //var innerDiv_3 = document.createElement('div');
+
+                    if ('<?php echo $current_id; ?>' == message[count].offer_creator_id) { 
+                       
+
+                    innerDiv_1.innerHTML = `<div class="offer_container mt-5 ml-2 w-70"><div> Название оффера: ` + message[count].offer_name +`</div>
+    <div> Цена перехода: ` + message[count].offer_price + `</div>
+    <div> Ссылка на сайт: <a href="` + message[count].offer_url + `">` + message[count].offer_url + `</a></div>
+    <div> Тематика: ` + message[count].offer_theme + `</div></div>`;
+                    div.appendChild(innerDiv_1);
+                    //div.appendChild(innerDiv_2);
+                
+                if (message[count].offer_status == "Yes") 
+                    {buttonName = "Деактивировать";
+                    className = "btn-outline-success"} else 
+                    {buttonName = "Активировать";
+                    className = "btn-outline-info";};
+                    innerDiv_2.innerHTML = `<form method="post" name="update_offer_status">
+                        <input type="hidden" name="offer_updated_id" value="` + message[count].offer_id + `">
+                        <button class="btn `+ className +` ml-3 mt-1 mb-1" name="update_offer_status" type="submit">` + buttonName + `</button>
+                    </form>`;
+                  
+                    div.appendChild(innerDiv_2);
+                  
+                }
+
+                if ('<?php echo $current_role; ?>' == "webmaster") {
+                    
+                    if (user_subs.includes(message[count].offer_id)) 
+                    {
+                        
+                        paid_rate = 1 - '<?php echo COMMISSION; ?>'
+                        innerDiv_1.innerHTML = `<div class="offer_container mt-5 ml-2 w-70"><div> Название оффера: ` + message[count].offer_name +`</div>
+    <div> Цена перехода: ` + (message[count].offer_price * paid_rate).toFixed(2) + `</div>
+    <div> Ссылка на сайт: <a href="` + message[count].offer_url + `">` + message[count].offer_url + `</a></div>
+    <div> Тематика: ` + message[count].offer_theme + `</div></div>`;
+                      
+                        div.appendChild(innerDiv_1);
+                        if (message[count].offer_status == "Yes") {
+                        
+                            innerDiv_2.innerHTML = `<form method="post" name="sub_unsub">
+                        <input type="hidden" name="offer_sub_id" value="` + message[count].offer_id + `">
+                        <div class="special-link ml-2 w-70">Ваша ссылка: <a href="` + user_links[user_subs.indexOf(message[count].offer_id)] +`">` + 
+                        user_links[user_subs.indexOf(message[count].offer_id)] + `</a></div> 
+                        <button class="btn btn-outline-success ml-3 mt-1 mb-1" name="sub_unsub" type="submit"> Отписаться</button> </form>`;
+                        } else {
+                            innerDiv_2.innerHTML = `<form method="post" name="sub_unsub">
+                        <input type="hidden" name="offer_sub_id" value="` + message[count].offer_id + `">
+                        <div class="special-link ml-2 w-70">Ваша ссылка неактивна! </div> 
+                        <button class="btn btn-outline-success ml-3 mt-1 mb-1" name="sub_unsub" type="submit"> Отписаться</button> </form>`;
+                        }
+                        div.appendChild(innerDiv_2);
+                    } 
+                    
+                    
+                }
+            }
+
+                for(var i=0; i<document.forms.length; i++){
+                    var form = document.forms[i];
+
+                    if (form.getAttribute("name") == "update_offer_status") {
+                        form.addEventListener("submit", formUpdateStatus,false);
+                    }
+
+                        if (form.getAttribute("name") == "sub_unsub") {
+                        form.addEventListener("submit", formSubUnsub,false);
+                    }
+
+                }
+
+                
+            }
+		
+            //innerDiv_2.innerHTML = mess[1].offer_price;
+			//innerDiv.classList.add('leftmessage');
+            //var div = document.querySelector('#resultField');
+			//var h3 = document.createElement('h3');
+			
+			//innerDiv.appendChild(h3);
+			
+			//document.querySelector('#textInput').value = '';
+			//document.getElementById('textField').value = '';
+            
+		};
+		
+		
+		socket.onerror = function(event){
+			status.innerHTML = 'error ' + event.message;
+		};
+
+		
+		document.forms['create_offer_form'].onsubmit = function(){
+            
+            event.preventDefault();
+            let message = {
+				offer_name: this.offer_name.value,
+                offer_price: this.offer_price.value,
+                offer_url: this.offer_url.value,
+                offer_theme: this.offer_theme.value,
+                offer_status: this.offer_status.checked,
+                offer_creator_id: '<?php echo $current_id; ?>',
+                command: 'create_offer_form'
+			}
+
+			socket.send(JSON.stringify(message));
+
+            this.offer_name.value = '';
+            this.offer_price.value = '';
+            this.offer_url.value = '';
+            this.offer_theme.value = '';
+            this.offer_status.checked = true;
+            
+  
+			
+			//return false;
+		}
+
+   
+
+
+        //document.forms['update_offer_status'].onsubmit = function(){
+        function formUpdateStatus(){   
+            event.preventDefault();
+           
+            let message = {
+				offer_updated_id: this.offer_updated_id.value,
+                command: 'update_offer_status'
+			}
+
+			socket.send(JSON.stringify(message));
+      
+			//return false;
+		}
+
+        function formSubUnsub(){   
+            event.preventDefault();
+             console.log("yep");    
+            let message = {
+				offer_sub_id: this.offer_sub_id.value,
+                current_user_id: '<?php echo $current_id; ?>',
+                command: 'sub_unsub'
+			}
+
+			socket.send(JSON.stringify(message));
+           /*
+            let message = {
+				offer_updated_id: this.offer_updated_id.value,
+                command: 'update_offer_status'
+			}
+
+			socket.send(JSON.stringify(message));*/
+      
+			//return false;
+		}
+
+     
+			//return false;
+		}
+		//return false;
+    
+</script>

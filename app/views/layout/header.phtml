@@ -1,0 +1,32 @@
+<?php
+session_start();
+?>
+<header class="header">
+
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-*">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="/">Главная <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="/dashboard">Дашборд</a>
+      <?php if(!$_SESSION["auth"]) 
+      {
+        ?>
+      <a class="nav-item nav-link" href="/auth/register">Зарегистрироваться</a>
+      <a class="nav-item nav-link" href="/auth/login">Залогиниться</a>
+      <?php 
+      }
+      if($_SESSION["auth"]) 
+      {
+        ?>
+      <a class="nav-item nav-link" href="/account">Личный кабинет</a>
+      <?php
+      }
+      ?>
+    </div>
+  </div>
+</nav>
+</header>

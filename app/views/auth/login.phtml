@@ -1,0 +1,36 @@
+<?php
+session_start();
+$token = hash('gost-crypto', random_int(0,999999));
+$_SESSION["CSRF"] = $token;
+?>
+<div class="form-login">
+    <form method="POST" action="/auth/login">
+
+        <div class="form-group">
+            <label for="user_name"><b>Логин</b></label>
+            <input name="user_name" class="form-control" type="text" placeholder="Введите логин" required>
+        </div>
+
+        <div class="form-group">
+            <label for="user_password"><b>Пароль</b></label>
+            <input name="user_password" class="form-control" type="password" placeholder="Введите пароль" required>
+        </div>
+          
+        <input type="hidden" name="token" value="<?=$token?>">
+      
+        <hr>
+        <p>
+            <input name="login" type="submit" class="btn btn-primary" value="Войти">
+        </p>
+        <a href="/auth/register" class="btn btn-outline-primary">Зарегистрироваться</a>
+        <?php
+      
+        if (!empty($no_auth)) { ?>
+            <small class="form-text text-muted">
+              <?= $no_auth ?>
+            </small>
+        <?php
+        }
+        ?>
+    </form>
+</div>

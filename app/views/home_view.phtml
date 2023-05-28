@@ -1,0 +1,19 @@
+<?php
+if ($_SESSION['auth']) { ?>
+    <div class="nav"> 
+    <!--При авторизации отображаем приветствие и кнопку для выхода-->
+    <p class="welcome">Здравствуйте, <?=$_SESSION['user_name']?></p>
+    <a href="/auth/logout"><button class="open-button btn btn-secondary" type="button">Выйти</button></a>         
+</div>
+<?php 
+}
+?>
+
+<div class="main-content">
+        <h3>О нас</h3>
+        <p>
+            Всем привет. Сегодня прекрасный день, чтобы заработать.
+        </p>
+    </div>
+    </div>
+   
