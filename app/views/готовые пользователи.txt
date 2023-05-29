@@ -1,0 +1,7 @@
+admin,rootroot
+Joseph,ecstasy (advertiser)
+Nataly,publisher (advertiser)
+Patrick,liberty (advertiser)
+Bella,reward (webmaster)
+Steven,primary (webmaster)
+Olga,silver (webmaster)

@@ -30,11 +30,7 @@ class Chat implements MessageComponentInterface {
         echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
             , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
             $data = json_decode($msg, true);
-           // $user_object = new \User;
-            //$str = $user_object->get_user_names();
-            //$str = $str . " " . $data["user_name"];
-            //$data['str'] = $str;
-            //var_dump($data);
+         
             
             if ($data['command'] == 'create_offer_form') {
             
@@ -65,14 +61,14 @@ class Chat implements MessageComponentInterface {
                 for ($i = 0; $i < count($data["sub_data"]); $i++) {
                     $data["sub_data"][$i]["link_param"] = get_link($data["sub_data"][$i]["user_id"], $data["sub_data"][$i]["offer_id"]);
                 }
-            //$offer_data['current_user'] = $data['offer_creator_id'];
+           
 
                 foreach ($this->clients as $client) {
             //if ($from !== $client) {
                 // The sender is not the receiver, send to each client connected
                 
                     $client->send(json_encode($data));
-                    var_dump($data);
+                   
             //}
             }
         }
@@ -124,10 +120,10 @@ class Chat implements MessageComponentInterface {
             }
 
             $offer_object = new \Offer;
-            //$offer_object->update_offer_status($data['offer_updated_id']);
+           
 
             $data["offer_data"] = $offer_object->get_all_offer_data();
-            //$data["offer_data"] = $sub_object->get_offer_data_for_user($data['current_user_id']);
+            
            
             foreach ($this->clients as $client) {
                 //if ($from !== $client) {

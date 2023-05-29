@@ -1,11 +1,4 @@
 
-<div id="resultField">
-                here
-                </div>
-
-                <div id="status">
-                here 1
-                </div>
                
     <div class="form-login">
     <form method="POST" name = "register_form" action="/auth/register">
@@ -29,97 +22,9 @@
       
     <input name="register" class ="btn btn-primary" type="submit" value="Зарегистрироваться">
  
-    <!--<a href="index.php" class="btn btn-secondary ml-3">В галерею</a> -->
+  
     
-    <?php
-/*
-        if (count($err) <> 0) { ?>
-            <p>При регистрации произошли следующие ошибки:</p><br>
-        <?php    
-            foreach($err AS $error) {
-        ?>
-                <small class="form-text text-muted">
-                    <?= $error ?>
-                </small>
-        <?php
-            } 
-        }*/
-        ?>
+ 
       </form> 
          
     </div>
-
-    <script>
-
-    window.onload = function(){
-		//var socket = new WebSocket('ws://echo.websocket.org');
-		var socket = new WebSocket('ws://localhost:8080');
-		var status = document.querySelector('#status');
-		socket.onopen = function(event){
-			
-				status.innerHTML = 'connected';
-			
-			
-		};
-		socket.onclose = function(event){
-			if( event.wasClean ){
-				status.innerHTML = 'closed';
-			}else{
-				status.innerHTML = 'closed some';
-			}
-		};
-		socket.onmessage = function(event){
-			let mess = JSON.parse(event.data);
-			//var div = document.getElementById('messages-field');
-			//var innerDiv = document.createElement('div');
-			//innerDiv.classList.add('leftmessage');
-            var div = document.querySelector('#resultField');
-			//var h3 = document.createElement('h3');
-			div.innerHTML = mess.user_name;
-			//innerDiv.appendChild(h3);
-			//div.appendChild(innerDiv);
-			//document.querySelector('#textInput').value = '';
-			//document.getElementById('textField').value = '';
-		};
-		
-		
-		socket.onerror = function(event){
-			status.innerHTML = 'error ' + event.message;
-		};
-
-		
-		document.forms['register_form'].onsubmit = function(){
-
-			let message = {
-				user_name: this.user_name.value,
-                user_email: this.user_email.value,
-                user_password: this.user_password.value,
-                user_password_repeat: this.user_password_repeat.value,
-                user_role: this.user_role.value
-			}
-
-			socket.send(JSON.stringify(message));
-
-            
-            $.ajax({
-            url: '/auth/register',
-            method: 'post',
-            dataType: 'JSON',
-            data: {
-				user_name: this.user_name.value,
-                user_email: this.user_email.value,
-                user_password: this.user_password.value,
-                user_password_repeat: this.user_password_repeat.value,
-                user_role: this.user_role.value
-			},
-            success: function(data){
-	        alert(data);
-            }
-        });
-		
-			
-			//return false;
-		}
-		//return false;
-	};
-</script>

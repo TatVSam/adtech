@@ -37,12 +37,6 @@ class Controller_Auth extends Controller
             $user_data = $user_object->get_user_data_by_user_name();
 
 
-              //$query = mysqli_query($link,"SELECT user_id, user_password FROM users WHERE user_login='".mysqli_real_escape_string($link,$_POST['login'])."' LIMIT 1");
-              //$data = mysqli_fetch_assoc($query); 
-              // Сравниваем пароли
-          
-              //echo password_hash("lexis", PASSWORD_DEFAULT);
-
              
               if(password_verify($_POST['user_password'], $user_data['user_password']))
               {
@@ -53,7 +47,7 @@ class Controller_Auth extends Controller
                 
                   $user_object->save_hash();
                   // Записываем в БД новый хеш авторизации
-                  //mysqli_query($link, "UPDATE users SET user_hash='".$hash."' WHERE user_id='".$data['user_id']."'"); 
+       
                   // Ставим куки
                   setcookie("user_id", $user_data['user_id'], time()+60*60*24*30, "/");
                   setcookie("user_hash", $hash, time()+60*60*24*30, "/", null, null, true); // httponly !!! 

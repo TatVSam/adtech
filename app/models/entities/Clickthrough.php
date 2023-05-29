@@ -142,11 +142,28 @@ class Clickthrough {
 
 	}
 
+	function get_offers_by_webmasters() 
+	{
+		$query = "
+		SELECT clickthroughs.user_id, offers.offer_name, COUNT(offers.offer_name) AS visits, SUM(offers.offer_price) AS money 
+		FROM clickthroughs JOIN offers 
+		ON offers.offer_id = clickthroughs.offer_id GROUP BY clickthroughs.user_id, offers.offer_name;";
+
+		$statement = $this->connect->prepare($query);
+
+		$statement->execute();
+
+		return $statement->fetchAll(PDO::FETCH_ASSOC);
+
+
+	}
+
 	function get_money_by_offers() 
 	{
 		$query = "
-		SELECT offers.offer_name, offers.offer_creator_id, SUM(offers.offer_price) AS money 
-		FROM offers JOIN clickthroughs ON offers.offer_id = clickthroughs.offer_id 
+		SELECT offers.offer_name, offers.offer_creator_id, COUNT(clickthroughs.offer_id) AS visits, SUM(offers.offer_price) AS money 
+		FROM offers JOIN clickthroughs 
+		ON offers.offer_id = clickthroughs.offer_id 
 		GROUP BY offers.offer_name, offers.offer_creator_id;";
 
 		$statement = $this->connect->prepare($query);

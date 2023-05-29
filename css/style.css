@@ -17,7 +17,10 @@ body {
 
 .main-content {
     margin: 20px 20px;
+    font-size: 30px;
 }
+
+
 
 /*.candles {
     object-fit: cover;

@@ -59,8 +59,10 @@ class Controller_Dashboard extends Controller
         $offer_object = new Offer;
         if (!$offer_object->is_active($params["offer_id"])) {
             echo "Оффер не активен";
+            $this->view->generate('error_view.php', 'template_view.phtml');
         } elseif (!$sub_object->is_subscribed($params["user_id"],$params["offer_id"])) {
             echo "Вебмастер не подписан на оффер";
+            $this->view->generate('error_view.php', 'template_view.phtml');
         } else {
             $url = $offer_object->get_url($params["offer_id"]);
             $click_object = new Clickthrough;
@@ -73,10 +75,6 @@ class Controller_Dashboard extends Controller
         }
         
         
-
-        //echo encrypt("2&5");
-        //echo encrypt("2&5");
-        //echo decrypt ("A9dOyS3N/riEwhbGfLdivZBJ8HX3rJ 9/GfgXyUu8PRiXJfbQd7w5KmJRzpFyMjFjskTmKmhRtyv6mMsGDxz7g==");
     }
     
     public function index()
