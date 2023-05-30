@@ -7,12 +7,6 @@ class View
         if($template_view){
             include_once LAYOUT . $template_view;
         }
-        /*
-        if(!empty($errors))
-        {
-            include 
-        }*/
         
-        //include 'application/views/'.$template_view;
 	}
 }

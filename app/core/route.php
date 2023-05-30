@@ -8,14 +8,7 @@ class Route
 		$controller_name = 'Home';
         $action_name = 'index';
 	    
-        /*$routes = $_GET['url'];
-		//$routes = ltrim($_SERVER['REQUEST_URI'], "\\");
-		
-		// получаем имя контроллера
-		if ( !empty($routes) )
-		{	
-			$controller_name = $routes;
-		}*/
+     
 
 		$routes = explode('/', $_SERVER['REQUEST_URI']);
 

@@ -441,27 +441,7 @@ if ($_SESSION['user_role'] == 'admin') {
 
 		
 			status.innerHTML = 'connected';
-/*
-           $.ajax({
-            url: '/dashboard/create_offer',
-            method: 'post',
-            dataType: 'JSON',
-            data: {
-				offername:'name'
-			},
-            success:function(data){
-              //console.log(data[1].offer_name);
-			var div = document.querySelector('.offer_section');
-			var innerDiv_1 = document.createElement('div');
-            var innerDiv_2 = document.createElement('div');
-           
-            
-            innerDiv_1.innerHTML = data[1].offer_name;
-            innerDiv_2.innerHTML = data[1].offer_price;
-            div.appendChild(innerDiv_1);
-            div.appendChild(innerDiv_2);
-            }
-        });*/
+
          
     }
 		socket.onclose = function(event){
@@ -576,15 +556,7 @@ if ($_SESSION['user_role'] == 'admin') {
                 
             }
 		
-            //innerDiv_2.innerHTML = mess[1].offer_price;
-			//innerDiv.classList.add('leftmessage');
-            //var div = document.querySelector('#resultField');
-			//var h3 = document.createElement('h3');
-			
-			//innerDiv.appendChild(h3);
-			
-			//document.querySelector('#textInput').value = '';
-			//document.getElementById('textField').value = '';
+           
             
 		};
 		
@@ -647,15 +619,7 @@ if ($_SESSION['user_role'] == 'admin') {
 			}
 
 			socket.send(JSON.stringify(message));
-           /*
-            let message = {
-				offer_updated_id: this.offer_updated_id.value,
-                command: 'update_offer_status'
-			}
-
-			socket.send(JSON.stringify(message));*/
-      
-			//return false;
+        
 		}
 
      

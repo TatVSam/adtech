@@ -161,18 +161,7 @@ class Offer
 		}
 		
 
-		//foreach($result as $user) {
-		//	echo $user["name"]."<br>";
-		//	}
-
-		//$statement = $this->connect->prepare($query);
-
-		/*$statement->bindParam(':user_email', $this->user_email);
-
-		if($statement->execute())
-		{
-			$user_data = $statement->fetch(PDO::FETCH_ASSOC);
-		}*/
+	
 
 		return $offer_data;
 	}

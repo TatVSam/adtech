@@ -17,39 +17,11 @@ body {
 
 .main-content {
     margin: 20px 20px;
-    font-size: 30px;
+    font-size: 20px;
 }
 
 
 
-/*.candles {
-    object-fit: cover;
-    width:100%;
-    height:100%;
-    border-radius: 5%;
-    max-width: 95%;
-    max-height: 95%;
-  
-}
-
-.img-container {
-    width: 400px;
-    height: 500px;
-    margin: 10px;
-}*/
-/*
-.nav {
-    background-color: #544141;
-    min-height: 55px;
-}*/
-
-/*.icon {
-    position: absolute;
-    top: 1%;
-    right: 90%;
-    width: 35px;
-    height:35px;
-}*/
 
 .welcome {
     position: absolute;
@@ -99,40 +71,7 @@ body {
     right: 135px;     
     
 }
-/*
-.container-content {
-    margin: 30px;
-}
 
-.menu-container {
-    position: absolute;
-    top: 0px;
-    display: flex;
-}
-
-.main-container {
-    position: absolute;
-    top: 50%;
-    left: 20%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    font-weight: bold;
-    height: 25vh;
-}
-
-.salon-background {
-    height: 100vh;
-    width: 100%;
-    opacity:0.4;
-    background: url('../../images/salon.jpg') center no-repeat;
-    background-size: cover; 
-}
-
-.container-content {
-    margin: 30px;
-}*/
 
 .nav-item {
     font-weight: bold;
@@ -144,81 +83,3 @@ body {
    
 }
 
-/*
-.img-container {   
-    width: 300px;
-    height: 400px;
-}
-
-img {
-    object-fit: cover;
-    width:100%;
-    height:100%;
-    border-radius: 5%;
-}
-
-.img-container_incense {
-    width: 300px;
-    height: 400px;
-    margin: 10px;
-}
-
-figcaption {    
-    width: 300px;
-    text-align: center;  
-}
-
-figure {
-    margin: 3% 3%;
-}
-
-.salon_img {
-    margin: 10px;
-}
-
-.figure-container { 
-    margin: 5% 0% 0% 10%;  
-    max-width: 2000px;
-    display: flex;
-    flex-wrap: wrap;    
-    align-content: space-between;
-}
-
-iframe {
-    border-radius: 5%;
-}
-
-.discount {
-    vertical-align: super;
-    font-size: 90%;
-    background-color: brown;
-    color:white;
-}
-
-.old-price {
-    position: relative;
-    font-size: 120%;
-}
-    
-.old-price:before {
-    border-bottom: 3px solid red;
-    position: absolute;
-    content: "";
-    width: 100%;
-    height: 80%;
-    transform: rotate(-7deg);
-}
-
-.new-price {
-    font-size: 140%;
-    font-weight: bold;
-}
-
-footer {
-    padding: 10px 20px;
-    color: white;
-    max-height: 50px;
-    background-color: #4b1f01;
-    font-size: 70%;
-}
-*/

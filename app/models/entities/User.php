@@ -1,31 +1,6 @@
 <?php
 require 'app/core/config/config.php';
-/*class User
-{
-    private $username;
-    private $password;
-    private $email;
 
-    private $role;
-    private $token;
-    private $created;
-
-    public function __contruct($entity = null)
-    {
-        $this->username = $entity->username;
-        $this->password = $entity->username;
-        $this->email = $entity->email;
-     
-        $this->token = $entity->token;
-        $this->created = DateTime::createFromFormat('U', time());
-
-        if (isset($entity->role)) {
-            $this->role = $entity->role;
-        } else {
-            $this->role = 'user';
-        }
-    }
-}*/
 
 class User
 {
@@ -34,11 +9,10 @@ class User
 	private $user_email;
 	private $user_password;
 	private $user_hash;
-	//private $user_profile;
+	
 	private $user_status;
 	private $user_created_on;
-	//private $user_verification_code;
-	//private $user_login_status;
+
 	private $user_token;
 	private $user_connection_id;
     private $user_role;
@@ -166,10 +140,7 @@ class User
 
 	function get_user_data()
 	{
-		/*$query = "
-		SELECT * FROM user_table 
-		WHERE user_email = :user_email
-		";*/
+		
 
 		$query = "
 		SELECT * FROM users";
@@ -177,18 +148,7 @@ class User
 		$statement = $this->connect->query($query);
 		$user_data = $statement->FetchAll(PDO::FETCH_ASSOC);
 
-		//foreach($result as $user) {
-		//	echo $user["name"]."<br>";
-		//	}
 
-		//$statement = $this->connect->prepare($query);
-
-		/*$statement->bindParam(':user_email', $this->user_email);
-
-		if($statement->execute())
-		{
-			$user_data = $statement->fetch(PDO::FETCH_ASSOC);
-		}*/
 
 		return $user_data;
 	}

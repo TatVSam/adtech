@@ -31,22 +31,7 @@ class Controller_Dashboard extends Controller
         return false;
     }
 
-    public function create_offer()
-    {
-        
-        
-            
-            
-            $click_object = new Clickthrough;
-            
-          
-        //$click_object->get_money_by_advertisers();
-           echo"<pre>"; var_dump($click_object->get_money_by_offers());echo"</pre>"; 
 
-        
-           
-        
-    }
 
     public function redirect() 
     {
